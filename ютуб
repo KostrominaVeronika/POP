@@ -1,0 +1,69 @@
+# importing module
+import telebot
+from telebot import types
+import youtube_dl
+class GETIN:
+    def __int__(self, formats, links):
+        self.links = links
+def video(URL):
+  a = youtube_dl.YoutubeDL().extract_info(url = URL, download = False)
+  file = f'{a["title"]}.mp4'
+  ydl_opts = {
+    'format': 'best',
+    'outtmpl': f'download\\{file}',
+  }
+  path = f'{os.getcwd()}\download'
+  if os.path.exists(path):
+    for i in os.listdir(path):
+      os.remove(f'{path}\\{i}')
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([URL])
+  else:
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+      ydl.download([URL])
+def audio(URL):
+  a = youtube_dl.YoutubeDL().extract_info(url = URL, download = False)
+  file = f'{a["title"]}.mp3'
+  ydl_opts = {
+    'format': 'bestaudio',
+    'outtmpl': f'download\\{file}',
+  }
+  path = f'{os.getcwd()}\download'
+  if os.path.exists(path):
+    for i in os.listdir(path):
+      os.remove(f'{path}\\{i}')
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([URL])
+  else:
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+      ydl.download([URL])
+bot = telebot.TeleBot('5119292005:AAHUp56ghcPNgdWMxHLmqEA5C_A9HV7QjuU')
+@bot.message_handler(commands=["start"])
+def be(a):
+  msg = bot.send_message(a.chat.id,'Ку-ку. Рад приветствовать. Жду ссылку...')
+  bot.register_next_step_handler(msg, l)
+@bot.message_handler(content_types=["text"])
+def l(a):
+  GETIN.links = a.text
+  markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+  markup.add('Видео', 'Аудио')
+  msg = bot.send_message(a.from_user.id, 'Выбирайте формат: ', reply_markup=markup)
+  bot.register_next_step_handler(msg, f)
+def f(a):
+  try:
+    n = youtube_dl.YoutubeDL().extract_info(url=GETIN.links, download=False)
+    if a.text == 'Аудио':
+      audio(GETIN.links)
+      bot.send_audio(m.from_user.id, 'Donnload begin')
+      with open(fr"{os.getcwd()}\download\{n['title']}.mp3", 'rb') as audio:
+        bot.send_audio(m.from_user.id, audio)
+    elif a.text == 'Видео':
+      video(GETIN.links)
+      bot.send_audio(m.from_user.id, 'Donnload begin')
+      with open(fr"{os.getcwd()}\download\{n['title']}.mp4", 'rb') as video:
+        bot.send_video(m.from_user.id, video)
+  except Exception as e:
+    print(e)
+bot.polling(none_stop=True, interval=0)
+
+ 
